@@ -191,5 +191,9 @@
   console.assert(Math.round(par(output(12, DEFAULT))) === 279, 'PAR model drifted from render (expected ~280)');
   console.assert(factor(3, DEFAULT.schedule) === 0 && factor(12, DEFAULT.schedule) === 1, 'schedule factor broken');
 
+  // ?t=12 opens the page previewing that hour (for demos and README screenshots)
+  const qt = parseFloat(new URLSearchParams(location.search).get('t'));
+  if (Number.isFinite(qt)) L.clock = { t: clamp(qt, 0, 23.99), mode: 'scrub' };
+
   window.Lumen = L;
 })();
