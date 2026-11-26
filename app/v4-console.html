@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen · Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --light: rgb(80,90,255); --lvl: .5; --panel: #24221f; --panel-2: #1a1917; --silk: #d8d2c6; --silk-2: #a49d90; --lcd: #0f1512; --lcd-ink: #9cf2c4; }
+* { box-sizing: border-box; margin: 0; }
+body { font-family: Barlow, system-ui, sans-serif; background: #121110; color: var(--silk); min-height: 100vh; font-variant-numeric: tabular-nums; }
+::selection { background: var(--silk); color: #121110; }
+:focus-visible { outline: 2px solid #ffd166; outline-offset: 3px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.silk { font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; font-weight: 500; color: var(--silk-2); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 26px 28px 40px; }
+/* fixture: the light bar as seen from the front */
+.fixture { height: 46px; border-radius: 12px 12px 6px 6px; background: linear-gradient(180deg, #3a3835, #1c1b19); position: relative; box-shadow: 0 10px 24px -10px rgba(0,0,0,.8); }
+.fixture::after { content: ""; position: absolute; left: 22px; right: 22px; bottom: 6px; height: 5px; border-radius: 3px; background: var(--light); opacity: calc(.15 + var(--lvl) * .85); box-shadow: 0 8px 30px 4px color-mix(in srgb, var(--light) calc(var(--lvl) * 70%), transparent); transition: background .8s, opacity .8s, box-shadow .8s; }
+.fixture .logo { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); font-family: "Barlow Condensed"; letter-spacing: .6em; font-size: 12px; color: #b3ac9f; }
+.fixture .pwr { position: absolute; right: 22px; top: 14px; display: flex; gap: 10px; align-items: center; }
+.ledi { width: 8px; height: 8px; border-radius: 50%; background: #39d98a; box-shadow: 0 0 6px #39d98a; }
+.ledi.saving { background: #ffb020; box-shadow: 0 0 6px #ffb020; } .ledi.error { background: #ff4d4d; box-shadow: 0 0 6px #ff4d4d; } .ledi.off { background: #3a3835; box-shadow: none; }
+.desk { margin-top: 36px; background: linear-gradient(180deg, var(--panel), var(--panel-2)); border-radius: 14px; padding: 22px; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 24px 50px -24px rgba(0,0,0,.9); display: grid; grid-template-columns: 1fr 300px; gap: 24px; }
+.strips { display: grid; grid-template-columns: repeat(7, 1fr) 1.2fr; gap: 0; }
+.strip { display: grid; justify-items: center; gap: 12px; padding: 4px 6px 10px; border-right: 1px solid rgba(255,255,255,.06); }
+.strip:last-child { border-right: 0; }
+.strip .cap { width: 100%; height: 4px; border-radius: 2px; }
+.strip .val { font-family: "Barlow Condensed"; font-size: 22px; font-weight: 600; color: var(--silk); }
+.track { display: flex; gap: 10px; height: 260px; align-items: stretch; }
+.meter { width: 8px; display: flex; flex-direction: column-reverse; gap: 2px; }
+.meter i { flex: 1; border-radius: 1px; background: #2f2d2a; }
+input[type=range].fader { writing-mode: vertical-lr; direction: rtl; -webkit-appearance: none; appearance: none; width: 34px; height: 260px; background: transparent; cursor: grab; }
+.fader::-webkit-slider-runnable-track { width: 6px; background: #0c0b0a; border-radius: 3px; box-shadow: inset 0 1px 2px #000; }
+.fader::-moz-range-track { width: 6px; background: #0c0b0a; border-radius: 3px; }
+.fader::-webkit-slider-thumb { -webkit-appearance: none; width: 34px; height: 46px; margin-left: -14px; border-radius: 5px; background: linear-gradient(180deg, #6b6760 0%, #4a4743 45%, #e9e4da 47%, #e9e4da 53%, #4a4743 55%, #35332f 100%); box-shadow: 0 6px 10px rgba(0,0,0,.6); }
+.fader::-moz-range-thumb { width: 34px; height: 46px; border: 0; border-radius: 5px; background: linear-gradient(180deg, #6b6760 0%, #4a4743 45%, #e9e4da 47%, #e9e4da 53%, #4a4743 55%, #35332f 100%); box-shadow: 0 6px 10px rgba(0,0,0,.6); }
+.strip.master .fader::-webkit-slider-thumb { background: linear-gradient(180deg, #a33 0%, #7a1f1f 45%, #fff 47%, #fff 53%, #7a1f1f 55%, #5a1616 100%); }
+.strip.master .fader::-moz-range-thumb { background: linear-gradient(180deg, #a33 0%, #7a1f1f 45%, #fff 47%, #fff 53%, #7a1f1f 55%, #5a1616 100%); }
+.side { display: grid; gap: 18px; align-content: start; }
+.lcd { background: var(--lcd); border-radius: 8px; padding: 14px 16px; color: var(--lcd-ink); box-shadow: inset 0 2px 8px rgba(0,0,0,.8); font-family: "Barlow Condensed"; }
+.lcd .par { font-size: 64px; font-weight: 500; line-height: 1; }
+.lcd .par small { font-size: 16px; margin-left: 6px; color: #6fb994; }
+.lcd .row { display: flex; justify-content: space-between; font-size: 16px; color: #6fb994; margin-top: 6px; }
+.lcd .row b { color: var(--lcd-ink); font-weight: 500; }
+.parbar { display: grid; grid-template-columns: repeat(25, 1fr); gap: 2px; margin-top: 10px; }
+.parbar i { height: 10px; background: #1d2a23; border-radius: 1px; }
+.btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.hw { background: linear-gradient(180deg, #3a3835, #2a2825); border: 0; border-radius: 6px; padding: 10px 6px 8px; font-family: "Barlow Condensed"; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; box-shadow: 0 3px 0 #0e0d0c, inset 0 1px 0 rgba(255,255,255,.08); display: grid; justify-items: center; gap: 6px; transition: transform .08s, box-shadow .08s; }
+.hw:active { transform: translateY(2px); box-shadow: 0 1px 0 #0e0d0c; }
+.hw::before { content: ""; width: 14px; height: 3px; border-radius: 2px; background: #3f3c37; }
+.hw[aria-pressed="true"]::before { background: #ffd166; box-shadow: 0 0 6px #ffd166; }
+.sched { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sched label { display: grid; gap: 4px; }
+.sched input { font: 500 20px "Barlow Condensed", sans-serif; background: var(--lcd); color: var(--lcd-ink); border: 0; border-radius: 6px; padding: 6px 8px; box-shadow: inset 0 2px 6px rgba(0,0,0,.8); color-scheme: dark; width: 100%; }
+.clock { margin-top: 22px; display: grid; grid-template-columns: auto auto 1fr; gap: 14px; align-items: center; }
+input[type=range].scrub { -webkit-appearance: none; appearance: none; width: 100%; height: 26px; background: transparent; }
+.scrub::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: #0c0b0a; }
+.scrub::-moz-range-track { height: 6px; border-radius: 3px; background: #0c0b0a; }
+.scrub::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 24px; margin-top: -9px; border-radius: 3px; background: #e9e4da; }
+.scrub::-moz-range-thumb { width: 14px; height: 24px; border: 0; border-radius: 3px; background: #e9e4da; }
+.log { margin-top: 18px; font-family: "Barlow Condensed"; font-size: 14px; color: var(--silk-2); display: grid; gap: 2px; }
+.log .bad { color: #ff7b7b; }
+.err { display: none; color: #ff9a9a; margin-top: 10px; } .err.show { display: block; }
+.err button { background: none; border: 0; text-decoration: underline; padding: 0; }
+.note { font-size: 13px; color: var(--silk-2); margin-top: 14px; }
+@media (max-width: 960px) { .desk { grid-template-columns: 1fr; } .strips { overflow-x: auto; grid-template-columns: repeat(8, 74px); } .wrap { padding: 20px 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="fixture"><span class="logo">LUMEN</span><span class="pwr"><span class="silk" style="color:var(--silk)" id="sync">Connecting</span><i class="ledi" id="ledi"></i></span></div>
+
+  <div class="desk">
+    <div>
+      <div class="strips" id="strips"></div>
+      <div class="clock">
+        <button class="hw" id="live">Now</button>
+        <button class="hw" id="play">Run day</button>
+        <label><span class="silk">Time preview · <span id="tm">12:00</span></span><input class="scrub" id="scrub" type="range" min="0" max="23.99" step="0.05"></label>
+      </div>
+      <p class="note">Faders set each channel's midday level. The LED column beside each fader shows what that channel outputs right now, after the time-of-day ramp.</p>
+    </div>
+
+    <div class="side">
+      <div class="lcd" aria-live="polite">
+        <div class="silk" style="color:#6fb994">PAR · estimated · simulated</div>
+        <div class="par"><span id="par">0</span><small>µmol/m²/s</small></div>
+        <div class="parbar" id="parbar"></div>
+        <div class="row"><span>Phase</span><b id="phase">–</b></div>
+        <div class="row"><span>Peak today</span><b id="peak">–</b></div>
+      </div>
+      <div><div class="silk" style="margin-bottom:8px">Scenes</div><div class="btns" id="presets"></div></div>
+      <div><div class="silk" style="margin-bottom:8px">Program</div><div class="sched" id="sched"></div></div>
+      <div>
+        <div class="btns" style="grid-template-columns:1fr"><button class="hw" id="online" aria-pressed="true">Light link</button></div>
+        <p class="err" id="err">No answer from the light. Settings are held on this desk. <button id="retry">Resend</button></p>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="lumen-core.js"></script>
+<script>
+const L = Lumen, $ = (id) => document.getElementById(id), SEG = 22;
+const toH = (s) => { const [h, m] = s.split(':').map(Number); return h + m / 60; };
+const strip = (id, name, color, master) => `<div class="strip${master ? ' master' : ''}"><span class="cap" style="background:${color}"></span><label class="silk" for="f-${id}">${name}</label>
+  <div class="track"><div class="meter" id="mt-${id}">${'<i></i>'.repeat(SEG)}</div><input class="fader" id="f-${id}" type="range" min="0" max="100" aria-label="${name}"></div><span class="val" id="v-${id}"></span></div>`;
+$('strips').innerHTML = L.CHANNELS.map(c => strip(c.id, c.name.replace('Royal Blue', 'Royal'), c.color)).join('') + strip('master', 'Master', '#c33', true);
+L.CHANNELS.forEach(c => $('f-' + c.id).oninput = (e) => L.setChannel(c.id, +e.target.value));
+$('f-master').oninput = (e) => L.setMaster(+e.target.value);
+$('parbar').innerHTML = '<i></i>'.repeat(25);
+$('presets').innerHTML = L.PRESETS.map(p => `<button class="hw" data-p="${p.id}" title="${p.note}">${p.name.replace('Acclimation', 'Acclim.')}</button>`).join('');
+$('presets').onclick = (e) => { const b = e.target.closest('[data-p]'); b && L.applyPreset(b.dataset.p); };
+$('sched').innerHTML = [['sunriseStart','Ramp up'],['sunriseEnd','Full'],['sunsetStart','Ramp down'],['sunsetEnd','Off']].map(([k, n]) => `<label><span class="silk">${n}</span><input type="time" step="900" data-k="${k}"></label>`).join('') + `<label><span class="silk">Moon %</span><input type="number" min="0" max="20" data-k="moon"></label>`;
+$('sched').onchange = (e) => { const k = e.target.dataset.k; if (k) L.setSchedule(k, k === 'moon' ? L.clamp(+e.target.value, 0, 20) : toH(e.target.value)); };
+$('scrub').oninput = (e) => L.setTime(+e.target.value);
+$('live').onclick = () => L.live(); $('play').onclick = () => L.play(); $('retry').onclick = () => L.retry();
+$('online').onclick = () => { L.setOnline(!L.device.online); $('online').setAttribute('aria-pressed', L.device.online); };
+const light = (el, n, color) => [...el.children].forEach((i, k) => { const on = k < n; i.style.background = on ? color : ''; i.style.boxShadow = on ? `0 0 5px ${color}` : ''; });
+
+L.on((why) => {
+  const v = L.view(), s = L.state;
+  document.documentElement.style.setProperty('--light', v.color);
+  document.documentElement.style.setProperty('--lvl', Math.min(1, v.level * 1.7).toFixed(3));
+  $('par').textContent = Math.round(v.par); $('phase').textContent = v.phase; $('tm').textContent = v.time;
+  if (document.activeElement !== $('scrub')) $('scrub').value = v.t;
+  light($('parbar'), Math.round(v.par / L.PAR_MAX * 25), '#9cf2c4');
+  L.CHANNELS.forEach(c => light($('mt-' + c.id), Math.round(v.out[c.id] / 100 * SEG), c.id === 'white' ? '#f3efe6' : c.color));
+  light($('mt-master'), Math.round(v.factor * SEG), '#ff6b5b');
+  $('live').setAttribute('aria-pressed', L.clock.mode === 'live'); $('play').setAttribute('aria-pressed', L.clock.mode === 'play');
+  if (why === 'time') return;
+  L.CHANNELS.forEach(c => { const f = $('f-' + c.id); if (document.activeElement !== f) f.value = s.mix[c.id]; $('v-' + c.id).textContent = s.mix[c.id]; });
+  if (document.activeElement !== $('f-master')) $('f-master').value = s.master; $('v-master').textContent = s.master;
+  $('peak').textContent = Math.round(L.peakPar());
+  document.querySelectorAll('[data-p]').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === s.preset));
+  document.querySelectorAll('#sched input').forEach(i => { if (document.activeElement !== i) i.value = i.dataset.k === 'moon' ? s.schedule.moon : L.fmt(s.schedule[i.dataset.k]); });
+  $('ledi').className = 'ledi ' + (L.device.online ? L.sync : 'off');
+  $('sync').textContent = { connecting: 'Connecting', saving: 'Writing', saved: 'Linked', error: 'No link' }[L.sync];
+  $('err').classList.toggle('show', L.sync === 'error');
+  $('log').innerHTML = L.device.log.slice(0, 4).map(e => `<div class="${e.status >= 400 ? 'bad' : ''}">${e.method} ${e.path} · ${e.status} · ${e.ms}ms</div>`).join('');
+});
+</script>
+</body>
+</html>
