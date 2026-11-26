@@ -69,10 +69,12 @@ input[type=range].h { -webkit-appearance: none; appearance: none; width: 100%; h
 .err { display: none; color: #b42d2d; font-size: 13px; margin-top: 10px; } .err.show { display: block; }
 .err button { background: none; border: 0; padding: 0; text-decoration: underline; }
 .fine { font-size: 12px; color: var(--ink-2); padding: 6px 0 12px; }
+.swipe { display: none; padding-bottom: 0; }
 @media (max-width: 900px) {
   .wrap { padding: 18px 16px; } .readouts { grid-template-columns: repeat(2, 1fr); gap: 16px; } .swatch { justify-self: start; }
   .lower { grid-template-columns: 1fr; } .sched { grid-template-columns: repeat(2, 1fr); }
-  .instrument { overflow-x: auto; } .plotwrap { min-width: 760px; }
+  .instrument { padding: 16px 14px 6px; } .plotwrap { overflow-x: auto; margin: 14px -14px 0; padding: 0 14px; }
+  #plot, .faders { min-width: 720px; } .swipe { display: block; }
 }
 </style>
 </head>
@@ -92,6 +94,7 @@ input[type=range].h { -webkit-appearance: none; appearance: none; width: 100%; h
       <div class="ro"><small><span id="phase">Midday</span></small><b class="num" id="time">12:00</b></div>
       <div class="swatch" id="swatch" title="Color of the light right now"></div>
     </div>
+    <p class="swipe fine">Swipe the spectrum sideways to reach every channel.</p>
     <div class="plotwrap">
       <svg id="plot" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-label="Emission spectrum of the light right now"></svg>
       <div class="faders" id="faders"></div>

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen · Ambient Spectrum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root { --light: rgb(80,90,255); --lvl: .5; --ink: #f6f7ff; --ink-2: rgba(246,247,255,.74); --ink-3: rgba(246,247,255,.56); --panel: rgba(5,6,12,.5); }
+* { box-sizing: border-box; margin: 0; }
+html { background: #05060c; }
+body {
+  font-family: Onest, system-ui, sans-serif; color: var(--ink); min-height: 100vh; font-variant-numeric: tabular-nums;
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in oklab, var(--light) calc(var(--lvl) * 85% + 10%), transparent) 0%, transparent 70%),
+    linear-gradient(180deg, color-mix(in oklab, var(--light) calc(var(--lvl) * 30% + 6%), #05060c) 0%, #05060c 100%);
+  transition: background 1.2s cubic-bezier(.2,.8,.2,1);
+}
+::selection { background: color-mix(in oklab, var(--light) 60%, white); color: #05060c; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 28px 32px 40px; display: grid; gap: 28px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.brand { font-weight: 600; font-size: 18px; letter-spacing: -.01em; }
+.brand span { font-weight: 300; color: var(--ink-2); }
+.status { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--ink-2); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #5df2a7; display: inline-block; margin-right: 6px; }
+.dot.saving { background: #ffd36b; } .dot.error { background: #ff6b6b; }
+.chip { border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.04); border-radius: 999px; padding: 7px 14px; font-size: 13px; transition: background .2s, border-color .2s; }
+.chip:hover { background: rgba(255,255,255,.1); }
+.chip[aria-pressed="true"] { background: var(--ink); color: #05060c; border-color: var(--ink); }
+
+/* hero: the reading on the left, the light itself (its spectrum) on the right */
+.hero { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 40px; align-items: stretch; }
+.readout { display: flex; flex-direction: column; gap: 18px; justify-content: space-between; }
+.phase { font-size: 15px; color: var(--ink-2); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.phase b { font-weight: 500; color: var(--ink); font-size: 22px; }
+.par { font-size: clamp(84px, 9vw, 136px); font-weight: 300; letter-spacing: -.04em; line-height: .9; }
+.par small { display: block; font-size: 16px; letter-spacing: 0; color: var(--ink-2); font-weight: 400; margin-top: 10px; }
+.stats { display: flex; gap: 28px; font-size: 13px; color: var(--ink-3); flex-wrap: wrap; }
+.stats b { display: block; font-size: 20px; font-weight: 500; color: var(--ink); margin-top: 2px; }
+.master { display: grid; grid-template-columns: 56px 1fr 44px; gap: 12px; align-items: center; font-size: 14px; }
+.master output { text-align: right; color: var(--ink-2); }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.note { font-size: 12px; color: var(--ink-3); }
+
+.spec { background: var(--panel); border-radius: 16px; padding: 18px 20px 12px; min-width: 0; }
+.spec h2 { font-size: 15px; font-weight: 500; display: flex; justify-content: space-between; gap: 12px; }
+.spec h2 span { color: var(--ink-3); font-weight: 400; font-size: 12px; }
+.scroller { overflow-x: auto; margin: 0 -20px; padding: 0 20px; }
+#plot { width: 100%; height: 240px; display: block; margin-top: 10px; }
+.faders { position: relative; height: 166px; }
+.fd { position: absolute; top: 2px; transform: translateX(-50%); display: grid; justify-items: center; gap: 4px; width: 56px; }
+.fd output { font-size: 13px; color: var(--ink); }
+.fd label { font-size: 11px; color: var(--ink-2); text-align: center; line-height: 1.2; }
+.fd label span { color: var(--ink-3); }
+input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; --c: var(--ink); --p: 50%; cursor: pointer; }
+input[type=range].h { width: 100%; height: 22px; }
+.h::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--c) var(--p), rgba(255,255,255,.16) var(--p)); }
+.h::-moz-range-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--c) var(--p), rgba(255,255,255,.16) var(--p)); }
+input[type=range].v { writing-mode: vertical-lr; direction: rtl; width: 22px; height: 96px; }
+.v::-webkit-slider-runnable-track { width: 4px; border-radius: 4px; background: linear-gradient(0deg, var(--c) var(--p), rgba(255,255,255,.16) var(--p)); }
+.v::-moz-range-track { width: 4px; border-radius: 4px; background: linear-gradient(0deg, var(--c) var(--p), rgba(255,255,255,.16) var(--p)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.45); }
+.h::-webkit-slider-thumb { margin-top: -6px; } .v::-webkit-slider-thumb { margin-left: -6px; }
+input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.45); }
+
+/* day ribbon: 24 hours painted with the light's own colors */
+.ribbon { position: relative; height: 110px; border-radius: 14px; overflow: hidden; cursor: ew-resize; touch-action: none; background: #05060c; }
+.ribbon canvas { width: 100%; height: 100%; display: block; }
+.ribbon .head { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); box-shadow: 0 0 0 1px rgba(0,0,0,.25); pointer-events: none; }
+.ribbon .head span { position: absolute; top: 8px; left: 8px; font-size: 13px; font-weight: 500; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+.hours { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-3); margin-top: 6px; }
+.timebar { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+
+.grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 28px; }
+.panel { background: var(--panel); border-radius: 16px; padding: 22px 24px; }
+.panel h2 { font-size: 15px; font-weight: 500; margin-bottom: 16px; display: flex; justify-content: space-between; }
+.panel h2 span { color: var(--ink-3); font-weight: 400; font-size: 13px; }
+.sched { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.sched label { display: grid; gap: 6px; font-size: 12px; color: var(--ink-3); }
+.sched input { font: inherit; font-size: 15px; color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 10px; padding: 9px 8px; color-scheme: dark; min-width: 0; width: 100%; }
+.log { font-size: 12px; color: var(--ink-3); display: grid; gap: 4px; max-height: 120px; overflow: auto; }
+.log b { color: var(--ink-2); font-weight: 500; }
+.log .bad { color: #ff8a8a; }
+.err { display: none; margin-top: 12px; font-size: 13px; color: #ffb3b3; } .err.show { display: block; }
+.err button { text-decoration: underline; background: none; border: 0; padding: 0; }
+.swipe { display: none; font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+@media (max-width: 960px) {
+  .hero, .grid { grid-template-columns: minmax(0, 1fr); } .wrap { padding: 20px 16px; }
+  .sched { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .spec { padding: 16px 14px 10px; } .scroller { margin: 0 -14px; padding: 0 14px; }
+  #plot, .faders { min-width: 640px; } .swipe { display: block; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Lumen Reef 60 <span>· 60 cm reef light</span></div>
+    <div class="status">
+      <span><i class="dot" id="dot"></i><span id="sync">Connecting…</span></span>
+      <button class="chip" id="online" aria-pressed="true">Light online</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="readout">
+      <div class="phase"><b id="phase">Midday</b><span id="time">12:00</span><span id="mode">live</span></div>
+      <div class="par" aria-live="polite"><span id="par">0</span><small>µmol/m²/s PAR, estimated</small></div>
+      <div class="stats">
+        <span>Peak λ<b id="peakNm">–</b></span>
+        <span>Blue : White<b id="ratio">–</b></span>
+        <span>Midday PAR<b id="peak">–</b></span>
+      </div>
+      <div class="master"><label for="m">Master</label><input class="h" id="m" type="range" min="0" max="100"><output id="mo"></output></div>
+      <div class="presets" id="presets" aria-label="Presets"></div>
+      <p class="note">Simulated: no hardware connected yet. PAR is an estimate at mid-depth.</p>
+    </div>
+
+    <div class="spec">
+      <h2>Spectrum <span id="presetName">Coral Pop</span></h2>
+      <p class="swipe">Swipe the spectrum sideways to reach every channel.</p>
+      <div class="scroller">
+        <svg id="plot" viewBox="0 0 1000 240" preserveAspectRatio="none" aria-label="Emission spectrum of the light at the shown time"></svg>
+        <div class="faders" id="faders"></div>
+      </div>
+      <p class="note">Filled curve: what the light emits now. Dashed: your midday mix. Each slider sits under its own wavelength (nm).</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="ribbon" id="ribbon" role="slider" tabindex="0" aria-label="Preview time of day" aria-valuemin="0" aria-valuemax="24">
+      <canvas id="ribbonCv"></canvas>
+      <div class="head" id="head"><span id="headLbl"></span></div>
+    </div>
+    <div class="hours"><span>00</span><span>03</span><span>06</span><span>09</span><span>12</span><span>15</span><span>18</span><span>21</span><span>24</span></div>
+    <div class="timebar">
+      <button class="chip" id="live">Now</button>
+      <button class="chip" id="play">Play a day in 40 s</button>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>Schedule <span>ramps &amp; moonlight</span></h2>
+      <div class="sched" id="sched"></div>
+    </div>
+    <div class="panel">
+      <h2>Device API <span>mock · 192.168.1.60</span></h2>
+      <div class="log" id="log"></div>
+      <p class="err" id="err">Can't reach the light. Changes are kept here. <button id="retry">Try again</button></p>
+    </div>
+  </section>
+</div>
+<script src="lumen-core.js"></script>
+<script>
+const L = Lumen, $ = (id) => document.getElementById(id);
+const NM0 = 380, NM1 = 720, PW = 1000, PH = 240, YMAX = 1.5;
+const X = (nm) => (nm - NM0) / (NM1 - NM0) * PW, Y = (v) => PH - 24 - Math.min(v / YMAX, 1) * (PH - 36);
+const toH = (s) => { const [h, m] = s.split(':').map(Number); return h + m / 60; };
+
+$('presets').innerHTML = L.PRESETS.map(p => `<button class="chip" data-p="${p.id}" title="${p.note}">${p.name}</button>`).join('');
+$('presets').onclick = (e) => e.target.dataset.p && L.applyPreset(e.target.dataset.p);
+$('faders').innerHTML = L.CHANNELS.map(c => `<div class="fd" style="left:${(X(c.nm) / PW * 100).toFixed(2)}%"><output id="o-${c.id}"></output>
+  <input class="v" id="c-${c.id}" type="range" min="0" max="100" style="--c:${c.color}"><label for="c-${c.id}">${c.name.replace('Royal Blue', 'Royal')}<br><span>${c.id === 'white' ? 'broad' : c.nm}</span></label></div>`).join('');
+L.CHANNELS.forEach(c => $('c-' + c.id).oninput = (e) => L.setChannel(c.id, +e.target.value));
+$('m').oninput = (e) => L.setMaster(+e.target.value);
+$('sched').innerHTML = [['sunriseStart','Sunrise'],['sunriseEnd','Full light'],['sunsetStart','Sunset'],['sunsetEnd','Lights out']].map(([k, n]) => `<label>${n}<input type="time" step="900" data-k="${k}"></label>`).join('') +
+  `<label>Moonlight %<input type="number" min="0" max="20" data-k="moon"></label>`;
+$('sched').onchange = (e) => { const k = e.target.dataset.k; if (k) L.setSchedule(k, k === 'moon' ? L.clamp(+e.target.value, 0, 20) : toH(e.target.value)); };
+$('live').onclick = () => L.live(); $('play').onclick = () => L.play(); $('retry').onclick = () => L.retry();
+$('online').onclick = () => { const on = !L.device.online; L.setOnline(on); $('online').setAttribute('aria-pressed', on); $('online').textContent = on ? 'Light online' : 'Light offline'; };
+
+const stops = Array.from({ length: 18 }, (_, i) => `<stop offset="${(i / 17 * 100).toFixed(1)}%" stop-color="${L.nmColor(NM0 + i * 20)}"/>`).join('');
+function drawPlot(v) {
+  const cur = L.spectrum(v.out, NM0, NM1, 3);
+  const mid = L.spectrum(L.view((L.state.schedule.sunriseEnd + L.state.schedule.sunsetStart) / 2).out, NM0, NM1, 3);
+  const path = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.nm).toFixed(1)},${Y(p.v).toFixed(1)}`).join('');
+  let s = `<defs><linearGradient id="g" x1="0" x2="1">${stops}</linearGradient></defs>`;
+  for (let nm = 400; nm <= 700; nm += 50) s += `<line x1="${X(nm)}" x2="${X(nm)}" y1="6" y2="${PH - 24}" stroke="rgba(255,255,255,.08)"/><text x="${X(nm)}" y="${PH - 6}" font-size="11" text-anchor="middle" fill="rgba(246,247,255,.56)" font-family="Onest">${nm}</text>`;
+  s += `<rect x="0" y="${PH - 24}" width="${PW}" height="3" fill="url(#g)" opacity=".6"/>`;
+  s += `<path d="${path(cur)}L${PW},${PH - 24}L0,${PH - 24}Z" fill="url(#g)" fill-opacity=".9"/>`;
+  s += `<path d="${path(cur)}" fill="none" stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`;
+  s += `<path d="${path(mid)}" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" opacity=".5"/>`;
+  $('plot').innerHTML = s;
+  const peak = cur.reduce((a, b) => b.v > a.v ? b : a);
+  $('peakNm').textContent = peak.v > 0.005 ? peak.nm + ' nm' : '–';
+  const blue = v.out.royal + v.out.blue + v.out.violet, white = v.out.white;
+  $('ratio').textContent = white > 0.5 ? (blue / white).toFixed(1) + ' : 1' : 'blue only';
+}
+
+const rib = $('ribbon'), cv = $('ribbonCv'), ctx = cv.getContext('2d');
+function drawRibbon() {
+  const w = cv.width = rib.clientWidth * devicePixelRatio, h = cv.height = rib.clientHeight * devicePixelRatio;
+  for (let x = 0; x < w; x += 2) {
+    const v = L.view(x / w * 24), a = Math.min(1, v.level * 1.7 + 0.06);
+    ctx.fillStyle = `rgba(${v.rgb},${a})`;
+    const bar = h * (0.12 + 0.88 * Math.min(1, v.level * 1.6));
+    ctx.fillRect(x, h - bar, 2, bar);
+  }
+}
+const scrub = (e) => { const r = rib.getBoundingClientRect(); L.setTime(L.clamp((e.clientX - r.left) / r.width, 0, .9999) * 24); };
+rib.onpointerdown = (e) => { rib.setPointerCapture(e.pointerId); scrub(e); };
+rib.onpointermove = (e) => e.buttons && scrub(e);
+rib.onkeydown = (e) => { const d = { ArrowLeft: -0.25, ArrowRight: 0.25 }[e.key]; if (d) { L.setTime(L.clock.t + d); e.preventDefault(); } };
+addEventListener('resize', drawRibbon);
+
+L.on((why) => {
+  const v = L.view(), s = L.state;
+  document.documentElement.style.setProperty('--light', v.color);
+  document.documentElement.style.setProperty('--lvl', Math.min(1, v.level * 1.6).toFixed(3));
+  $('par').textContent = Math.round(v.par);
+  $('phase').textContent = v.phase; $('time').textContent = v.time;
+  $('mode').textContent = { live: 'live', scrub: 'preview', play: 'playing' }[L.clock.mode];
+  $('head').style.left = (v.t / 24 * 100) + '%'; $('headLbl').textContent = v.time;
+  rib.setAttribute('aria-valuenow', v.t.toFixed(2)); rib.setAttribute('aria-valuetext', v.time + ' ' + v.phase);
+  $('live').setAttribute('aria-pressed', L.clock.mode === 'live'); $('play').setAttribute('aria-pressed', L.clock.mode === 'play');
+  drawPlot(v);
+  if (why === 'time') return;
+  if (why !== 'sync') drawRibbon();
+  L.CHANNELS.forEach(c => { const el = $('c-' + c.id); if (document.activeElement !== el) el.value = s.mix[c.id]; el.style.setProperty('--p', s.mix[c.id] + '%'); $('o-' + c.id).textContent = s.mix[c.id]; });
+  $('m').value = s.master; $('m').style.setProperty('--p', s.master + '%'); $('mo').textContent = s.master + '%';
+  $('peak').textContent = Math.round(L.peakPar());
+  document.querySelectorAll('[data-p]').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === s.preset));
+  $('presetName').textContent = (L.PRESETS.find(p => p.id === s.preset) || { name: 'Custom mix' }).name;
+  document.querySelectorAll('#sched input').forEach(i => { if (document.activeElement !== i) i.value = i.dataset.k === 'moon' ? s.schedule.moon : L.fmt(s.schedule[i.dataset.k]); });
+  $('dot').className = 'dot ' + L.sync; $('sync').textContent = { connecting: 'Connecting…', saving: 'Saving to light…', saved: 'Synced', error: 'Not synced' }[L.sync];
+  $('err').classList.toggle('show', L.sync === 'error');
+  $('log').innerHTML = L.device.log.slice(0, 8).map(e => `<div class="${e.status >= 400 ? 'bad' : ''}"><b>${e.method}</b> ${e.path} · ${e.status} · ${e.ms} ms</div>`).join('') || 'No requests yet';
+});
+</script>
+</body>
+</html>

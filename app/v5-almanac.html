@@ -38,7 +38,8 @@ section + section { margin-top: 30px; }
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .table td, .table th { border-bottom: 1px solid var(--line); padding: 8px 6px 8px 0; text-align: left; font-weight: 400; }
 .table th { color: var(--ink-2); font-size: 12px; }
-.table input[type=time], .table input[type=number] { font: 500 17px "Red Hat Display", sans-serif; color: var(--ink); background: transparent; border: 0; border-bottom: 1px dashed var(--ink-2); padding: 2px 0; width: 110px; }
+.table input[type=time], .table input[type=number] { font: 500 17px "Red Hat Display", sans-serif; color: var(--ink); background: transparent; border: 0; border-bottom: 1px dashed var(--ink-2); padding: 2px 0; width: 8.2em; }
+.table input[type=number] { width: 4em; }
 .presets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); border-top: 1px solid var(--line); }
 .presets button { text-align: left; padding: 10px 10px 10px 0; border-bottom: 1px solid var(--line); display: grid; gap: 2px; }
 .presets button b { font-family: "Red Hat Display"; font-weight: 500; font-size: 16px; }
@@ -69,7 +70,7 @@ input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 
   <div class="main">
     <div>
       <div class="dialbox">
-        <svg id="clock" viewBox="0 0 560 560" role="slider" tabindex="0" aria-label="Time of day, drag the sun around the dial" aria-valuemin="0" aria-valuemax="24"></svg>
+        <svg id="clock" viewBox="-24 -24 608 608" role="slider" tabindex="0" aria-label="Time of day, drag the sun around the dial" aria-valuemin="0" aria-valuemax="24"></svg>
         <div class="center" aria-live="polite">
           <div class="par" id="par">0</div>
           <div class="u">µmol/m²/s PAR (est.)</div>

@@ -65,7 +65,19 @@ input[type=range].scrub { -webkit-appearance: none; appearance: none; width: 100
 .err { display: none; color: #ff9a9a; margin-top: 10px; } .err.show { display: block; }
 .err button { background: none; border: 0; text-decoration: underline; padding: 0; }
 .note { font-size: 13px; color: var(--silk-2); margin-top: 14px; }
-@media (max-width: 960px) { .desk { grid-template-columns: 1fr; } .strips { overflow-x: auto; grid-template-columns: repeat(8, 74px); } .wrap { padding: 20px 16px; } }
+@media (max-width: 960px) { .desk { grid-template-columns: 1fr; } .desk > * { min-width: 0; } .wrap { padding: 20px 16px; } }
+/* phone: all 8 strips fit across the screen with slimmer fader caps */
+@media (max-width: 560px) {
+  .desk { padding: 14px 8px; } .strip { padding: 4px 0 8px; gap: 8px; }
+  .strip .silk { font-size: 10px; letter-spacing: .04em; }
+  .strip .val { font-size: 17px; }
+  .track { gap: 3px; height: 200px; } .meter { width: 4px; }
+  input[type=range].fader { width: 26px; height: 200px; }
+  .fader::-webkit-slider-thumb { width: 26px; height: 38px; margin-left: -10px; }
+  .fader::-moz-range-thumb { width: 26px; height: 38px; }
+  .clock { grid-template-columns: auto auto; } .clock label { grid-column: 1 / -1; }
+  .btns { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 </head>
 <body>
