@@ -66,10 +66,11 @@ input[type=range]::-moz-range-thumb { width: 4px; height: 36px; border: 0; borde
 .err { display: none; color: var(--red); font-weight: 700; margin-bottom: 8px; } .err.show { display: block; }
 .err button { text-decoration: underline; }
 @media (max-width: 860px) {
-  .page { padding: 20px 16px; grid-template-columns: 1fr; }
-  header, .big, .field, h2, .body, .rule { grid-column: 1 / -1; } header { display: grid; grid-template-columns: 1fr; gap: 6px; }
+  .page { padding: 20px 16px; grid-template-columns: minmax(0, 1fr); }
+  .times input { font-size: 24px; min-width: 0; }
+  header, .big, .field, h2, .body, .rule { grid-column: 1 / -1; } header { display: grid; grid-template-columns: 1fr; gap: 6px; } header > * { grid-column: 1 / -1 !important; }
   header .st { justify-content: flex-start; } h2 { margin-bottom: 14px; } .field { margin-top: 24px; min-height: 180px; }
-  .times { grid-template-columns: repeat(2, 1fr); } .bar { grid-template-columns: 90px 1fr 48px; }
+  .times { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bar { grid-template-columns: 90px 1fr 48px; }
   .hours button span { display: none; } .hours button:nth-child(6n+1) span { display: block; }
 }
 </style>

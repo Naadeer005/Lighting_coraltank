@@ -23,28 +23,28 @@ Run it locally, then open http://127.0.0.1:5173/ to compare all six:
 python -m http.server 5173 --directory app
 ```
 
-Add `?t=12` to any version's URL to preview that hour.
+Add `?t=12` to any version's URL to preview that hour. Each version below is shown at desktop width (1440 px) and phone width (390 px).
 
 ### 1 · Ambient
 The whole screen is lit by the light; drag the day ribbon to preview any hour.
-![Ambient](render/app/v1-ambient.png)
+<img src="render/app/v1-ambient.png" alt="Ambient, desktop" width="70%"> <img src="render/app/mobile/v1-ambient.png" alt="Ambient, phone" width="22%">
 
 ### 2 · Aluminium
 Machined product feel; turn the ring around the lens to set master brightness.
-![Aluminium](render/app/v2-aluminium.png)
+<img src="render/app/v2-aluminium.png" alt="Aluminium, desktop" width="70%"> <img src="render/app/mobile/v2-aluminium.png" alt="Aluminium, phone" width="22%">
 
 ### 3 · Swiss
 Strict grid, huge numerals, a solid block of the current light color.
-![Swiss](render/app/v3-swiss.png)
+<img src="render/app/v3-swiss.png" alt="Swiss, desktop" width="70%"> <img src="render/app/mobile/v3-swiss.png" alt="Swiss, phone" width="22%">
 
 ### 4 · Console
 Lighting desk with a fader and live LED meter per channel.
-![Console](render/app/v4-console.png)
+<img src="render/app/v4-console.png" alt="Console, desktop" width="70%"> <img src="render/app/mobile/v4-console.png" alt="Console, phone" width="22%">
 
 ### 5 · Almanac
 A 24 h sun clock on sea-chart paper; drag the sun around the dial.
-![Almanac](render/app/v5-almanac.png)
+<img src="render/app/v5-almanac.png" alt="Almanac, desktop" width="70%"> <img src="render/app/mobile/v5-almanac.png" alt="Almanac, phone" width="22%">
 
 ### 6 · Spectrometer
 The emission spectrum is the hero, with each fader under its own wavelength.
-![Spectrometer](render/app/v6-spectrometer.png)
+<img src="render/app/v6-spectrometer.png" alt="Spectrometer, desktop" width="70%"> <img src="render/app/mobile/v6-spectrometer.png" alt="Spectrometer, phone" width="22%">
