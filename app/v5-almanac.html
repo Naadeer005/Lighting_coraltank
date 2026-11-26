@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen · Almanac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700&family=Red+Hat+Text:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --light: rgb(80,90,255); --paper: #e6eef2; --paper-2: #d6e2e8; --ink: #0e2a3d; --ink-2: #34546a; --line: #9fb6c4; }
+* { box-sizing: border-box; margin: 0; }
+body { font-family: "Red Hat Text", system-ui, sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; font-variant-numeric: tabular-nums; }
+::selection { background: var(--ink); color: var(--paper); }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 28px 32px 44px; }
+header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1.5px solid var(--ink); padding-bottom: 12px; gap: 16px; flex-wrap: wrap; }
+h1 { font-family: "Red Hat Display"; font-weight: 700; font-size: 22px; letter-spacing: -.01em; }
+h1 span { font-weight: 400; color: var(--ink-2); font-size: 15px; margin-left: 10px; }
+.st { font-size: 13px; color: var(--ink-2); display: flex; gap: 16px; align-items: center; }
+.st button { text-decoration: underline; text-underline-offset: 3px; }
+.badge { display: inline-block; width: 8px; height: 8px; border: 1.5px solid var(--ink); border-radius: 50%; margin-right: 6px; background: var(--ink); }
+.badge.saving { background: transparent; } .badge.error { background: #c0392b; border-color: #c0392b; }
+.main { display: grid; grid-template-columns: minmax(0, 560px) 1fr; gap: 48px; margin-top: 28px; align-items: start; }
+/* the sun clock: 24 h around a circle, midnight at the bottom, noon at the top */
+.dialbox { position: relative; }
+#clock { width: 100%; height: auto; display: block; touch-action: none; cursor: grab; }
+.dialbox .center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
+.center .par { font-family: "Red Hat Display"; font-size: clamp(56px, 7vw, 84px); font-weight: 500; line-height: 1; letter-spacing: -.03em; }
+.center .u { font-size: 13px; color: var(--ink-2); }
+.center .ph { font-family: "Red Hat Display"; font-weight: 700; font-size: 18px; margin-top: 10px; }
+.legend { display: flex; justify-content: center; gap: 18px; font-size: 13px; color: var(--ink-2); margin-top: 6px; flex-wrap: wrap; }
+.legend button { text-decoration: underline; text-underline-offset: 3px; }
+.legend button[aria-pressed="true"] { text-decoration: none; font-weight: 500; color: var(--ink); }
+h2 { font-family: "Red Hat Display"; font-size: 13px; text-transform: uppercase; letter-spacing: .16em; font-weight: 700; margin: 0 0 12px; display: flex; justify-content: space-between; }
+h2 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ink-2); font-size: 13px; }
+section + section { margin-top: 30px; }
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table td, .table th { border-bottom: 1px solid var(--line); padding: 8px 6px 8px 0; text-align: left; font-weight: 400; }
+.table th { color: var(--ink-2); font-size: 12px; }
+.table input[type=time], .table input[type=number] { font: 500 17px "Red Hat Display", sans-serif; color: var(--ink); background: transparent; border: 0; border-bottom: 1px dashed var(--ink-2); padding: 2px 0; width: 110px; }
+.presets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); border-top: 1px solid var(--line); }
+.presets button { text-align: left; padding: 10px 10px 10px 0; border-bottom: 1px solid var(--line); display: grid; gap: 2px; }
+.presets button b { font-family: "Red Hat Display"; font-weight: 500; font-size: 16px; }
+.presets button small { font-size: 12px; color: var(--ink-2); }
+.presets button[aria-pressed="true"] b::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); margin-right: 8px; vertical-align: 2px; }
+.ch { display: grid; grid-template-columns: 100px 1fr 42px; gap: 12px; align-items: center; padding: 4px 0; font-size: 14px; }
+.ch output { text-align: right; font-weight: 500; }
+.ch label i { display: inline-block; width: 14px; height: 2px; margin-right: 8px; vertical-align: 4px; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; --p: 50%; --c: var(--ink); }
+input[type=range]::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(90deg, var(--ink) var(--p), var(--line) var(--p)); }
+input[type=range]::-moz-range-track { height: 2px; background: linear-gradient(90deg, var(--ink) var(--p), var(--line) var(--p)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -6px; border-radius: 50%; background: var(--paper); border: 2px solid var(--c); }
+input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--c); }
+.log { font-size: 12px; color: var(--ink-2); display: grid; gap: 2px; } .log .bad { color: #a93226; }
+.err { display: none; color: #a93226; font-size: 13px; margin-bottom: 8px; } .err.show { display: block; }
+.err button { text-decoration: underline; }
+.fine { font-size: 12px; color: var(--ink-2); margin-top: 10px; text-align: center; }
+@media (max-width: 920px) { .main { grid-template-columns: 1fr; } .wrap { padding: 20px 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Lumen Reef 60<span>Light almanac</span></h1>
+    <div class="st"><span><i class="badge" id="badge"></i><span id="sync">Connecting</span></span><button id="online">Simulate offline</button></div>
+  </header>
+
+  <div class="main">
+    <div>
+      <div class="dialbox">
+        <svg id="clock" viewBox="0 0 560 560" role="slider" tabindex="0" aria-label="Time of day, drag the sun around the dial" aria-valuemin="0" aria-valuemax="24"></svg>
+        <div class="center" aria-live="polite">
+          <div class="par" id="par">0</div>
+          <div class="u">µmol/m²/s PAR (est.)</div>
+          <div class="ph"><span id="phase">Midday</span> · <span id="time">12:00</span></div>
+        </div>
+      </div>
+      <div class="legend"><button id="live">Now</button><button id="play">Play the day</button><span id="mode">live</span></div>
+      <p class="fine">Ring color = the light's own color at that hour, thickness = intensity. Drag the sun to preview any hour. Simulated device.</p>
+    </div>
+
+    <div>
+      <section>
+        <h2>Day plan <span id="peak"></span></h2>
+        <table class="table" id="plan">
+          <tr><th>Event</th><th>Time</th><th>Light</th></tr>
+        </table>
+      </section>
+      <section>
+        <h2>Presets</h2>
+        <div class="presets" id="presets"></div>
+      </section>
+      <section>
+        <h2>Spectrum <span id="presetName"></span></h2>
+        <div id="channels"></div>
+      </section>
+      <section>
+        <h2>Device log <span>mock API</span></h2>
+        <p class="err" id="err">The light didn't answer. Your plan is kept here. <button id="retry">Send again</button></p>
+        <div class="log" id="log"></div>
+      </section>
+    </div>
+  </div>
+</div>
+<script src="lumen-core.js"></script>
+<script>
+const L = Lumen, $ = (id) => document.getElementById(id), C = 280, R = 222;
+const toH = (s) => { const [h, m] = s.split(':').map(Number); return h + m / 60; };
+const ang = (t) => (t / 24) * 2 * Math.PI + Math.PI / 2; // midnight at bottom
+const pt = (t, r) => [C + Math.cos(ang(t)) * r, C + Math.sin(ang(t)) * r];
+const PLAN = [['sunriseStart', 'Sunrise begins', 'ramp up'], ['sunriseEnd', 'Full light', 'peak'], ['sunsetStart', 'Sunset begins', 'ramp down'], ['sunsetEnd', 'Lights out', 'moonlight']];
+$('plan').innerHTML += PLAN.map(([k, n, d]) => `<tr><td>${n}</td><td><input type="time" step="900" data-k="${k}" aria-label="${n}"></td><td>${d}</td></tr>`).join('') +
+  `<tr><td>Moonlight</td><td><input type="number" min="0" max="20" data-k="moon" aria-label="Moonlight percent"> %</td><td>royal blue only</td></tr>`;
+$('plan').onchange = (e) => { const k = e.target.dataset.k; if (k) L.setSchedule(k, k === 'moon' ? L.clamp(+e.target.value, 0, 20) : toH(e.target.value)); };
+$('presets').innerHTML = L.PRESETS.map(p => `<button data-p="${p.id}"><b>${p.name}</b><small>${p.note}</small></button>`).join('');
+$('presets').onclick = (e) => { const b = e.target.closest('[data-p]'); b && L.applyPreset(b.dataset.p); };
+$('channels').innerHTML = `<div class="ch"><label for="m"><i style="background:#0e2a3d"></i>Master</label><input id="m" type="range" min="0" max="100"><output id="mo"></output></div>` +
+  L.CHANNELS.map(c => `<div class="ch"><label for="c-${c.id}"><i style="background:${c.id === 'white' ? '#9fb6c4' : c.color}"></i>${c.name}</label><input id="c-${c.id}" type="range" min="0" max="100" style="--c:${c.id === 'white' ? '#34546a' : c.color}"><output id="o-${c.id}"></output></div>`).join('');
+L.CHANNELS.forEach(c => $('c-' + c.id).oninput = (e) => L.setChannel(c.id, +e.target.value));
+$('m').oninput = (e) => L.setMaster(+e.target.value);
+$('live').onclick = () => L.live(); $('play').onclick = () => L.play(); $('retry').onclick = () => L.retry();
+$('online').onclick = () => { L.setOnline(!L.device.online); $('online').textContent = L.device.online ? 'Simulate offline' : 'Bring light online'; };
+
+const svg = $('clock');
+function drawStatic() {
+  let s = `<circle cx="${C}" cy="${C}" r="${R + 34}" fill="none" stroke="#9fb6c4"/><circle cx="${C}" cy="${C}" r="${R - 34}" fill="none" stroke="#9fb6c4"/>`;
+  for (let h = 0; h < 24; h++) { const [x1, y1] = pt(h, R + 34), [x2, y2] = pt(h, R + (h % 6 ? 40 : 46)), [tx, ty] = pt(h, R + 58);
+    s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#0e2a3d" stroke-width="${h % 6 ? 1 : 2}"/>`;
+    if (h % 3 === 0) s += `<text x="${tx}" y="${ty + 4}" font-size="12" text-anchor="middle" fill="#34546a" font-family="Red Hat Text">${String(h).padStart(2, '0')}</text>`; }
+  for (let i = 0; i < 288; i++) { const t = i / 12, v = L.view(t), w = 2 + Math.min(1, v.level * 1.6) * 62, [x1, y1] = pt(t, R - w / 2), [x2, y2] = pt(t, R + w / 2);
+    s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgb(${v.rgb})" stroke-opacity="${(.35 + Math.min(1, v.level * 2) * .65).toFixed(2)}" stroke-width="5"/>`; }
+  for (const [k] of PLAN) { const [x, y] = pt(L.state.schedule[k], R + 34), [x2, y2] = pt(L.state.schedule[k], R - 34);
+    s += `<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="#0e2a3d" stroke-dasharray="3 3"/>`; }
+  s += `<g id="sun"><line id="hand" stroke="#0e2a3d" stroke-width="1.5"/><circle id="sunc" r="15" fill="#e6eef2" stroke="#0e2a3d" stroke-width="2"/><circle id="sund" r="8"/></g>`;
+  svg.innerHTML = s;
+}
+function drawSun(v) {
+  const [x, y] = pt(v.t, R), [hx, hy] = pt(v.t, R - 34);
+  $('sunc').setAttribute('cx', x); $('sunc').setAttribute('cy', y); $('sund').setAttribute('cx', x); $('sund').setAttribute('cy', y); $('sund').setAttribute('fill', v.color);
+  $('hand').setAttribute('x1', hx); $('hand').setAttribute('y1', hy); $('hand').setAttribute('x2', x); $('hand').setAttribute('y2', y);
+  svg.setAttribute('aria-valuenow', v.t.toFixed(2)); svg.setAttribute('aria-valuetext', v.time + ', ' + v.phase);
+}
+const drag = (e) => { const r = svg.getBoundingClientRect(); const a = Math.atan2(e.clientY - r.top - r.height / 2, e.clientX - r.left - r.width / 2) - Math.PI / 2; L.setTime(((a / (2 * Math.PI)) * 24 + 24) % 24); };
+svg.onpointerdown = (e) => { svg.setPointerCapture(e.pointerId); drag(e); };
+svg.onpointermove = (e) => e.buttons && drag(e);
+svg.onkeydown = (e) => { const d = { ArrowLeft: -.25, ArrowRight: .25, ArrowUp: .25, ArrowDown: -.25 }[e.key]; if (d) { L.setTime(L.clock.t + d); e.preventDefault(); } };
+
+L.on((why) => {
+  const v = L.view(), s = L.state;
+  if (why !== 'time' && why !== 'sync') drawStatic();
+  if (!$('sunc')) drawStatic();
+  drawSun(v);
+  $('par').textContent = Math.round(v.par); $('phase').textContent = v.phase; $('time').textContent = v.time;
+  $('mode').textContent = { live: 'showing now', scrub: 'previewing', play: 'playing' }[L.clock.mode];
+  $('live').setAttribute('aria-pressed', L.clock.mode === 'live'); $('play').setAttribute('aria-pressed', L.clock.mode === 'play');
+  if (why === 'time') return;
+  $('peak').textContent = 'peak ' + Math.round(L.peakPar()) + ' PAR';
+  document.querySelectorAll('#plan input').forEach(i => { if (document.activeElement !== i) i.value = i.dataset.k === 'moon' ? s.schedule.moon : L.fmt(s.schedule[i.dataset.k]); });
+  L.CHANNELS.forEach(c => { const el = $('c-' + c.id); if (document.activeElement !== el) el.value = s.mix[c.id]; el.style.setProperty('--p', s.mix[c.id] + '%'); $('o-' + c.id).textContent = s.mix[c.id]; });
+  $('m').value = s.master; $('m').style.setProperty('--p', s.master + '%'); $('mo').textContent = s.master;
+  document.querySelectorAll('[data-p]').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === s.preset));
+  $('presetName').textContent = (L.PRESETS.find(p => p.id === s.preset) || { name: 'custom mix' }).name;
+  $('badge').className = 'badge ' + L.sync; $('sync').textContent = { connecting: 'Connecting', saving: 'Saving', saved: 'In sync', error: 'Not synced' }[L.sync];
+  $('err').classList.toggle('show', L.sync === 'error');
+  $('log').innerHTML = L.device.log.slice(0, 5).map(e => `<div class="${e.status >= 400 ? 'bad' : ''}">${e.at.toLocaleTimeString()} · ${e.method} ${e.path} · ${e.status}</div>`).join('') || 'No requests yet.';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "app/v4-console.html"
+        ],
+        "createdAt": "2026-11-26T13:58:39.567Z",
+        "reason": "domain: lit LED meters and the fixture's light strip on a mixing-console surface are literal light sources, not decoration"
+      },
+      {
+        "rule": "nested-cards",
+        "value": "*",
+        "files": [
+          "app/v4-console.html"
+        ],
+        "createdAt": "2026-11-26T14:01:33.106Z",
+        "reason": "domain: the LCD readout is a display screen set into the mixing-desk panel, a physical inset rather than a card in a card"
+      }
+    ]
+  }
+}

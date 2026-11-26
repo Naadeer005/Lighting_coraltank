@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen · Aluminium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root { --light: rgb(80,90,255); --lvl: .5; --ink: #1b1d21; --ink-2: #4a4f57; --ink-3: #575c64; --line: #c9ccd1; --metal: #e3e5e8; }
+* { box-sizing: border-box; margin: 0; }
+body {
+  font-family: "Hanken Grotesk", system-ui, sans-serif; color: var(--ink); min-height: 100vh; font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #eceef0 0%, #dcdfe3 100%);
+}
+::selection { background: var(--ink); color: #fff; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 32px; }
+header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 12px; }
+.brand { font-size: 15px; letter-spacing: .32em; text-transform: uppercase; font-weight: 500; }
+.brand span { letter-spacing: 0; text-transform: none; color: var(--ink-3); font-weight: 400; margin-left: 12px; }
+.status { display: flex; gap: 18px; align-items: center; font-size: 13px; color: var(--ink-2); }
+.led { width: 7px; height: 7px; border-radius: 50%; background: #1fae6a; display: inline-block; margin-right: 7px; box-shadow: 0 0 0 2px rgba(31,174,106,.18); }
+.led.saving { background: #d59b14; box-shadow: 0 0 0 2px rgba(213,155,20,.2); } .led.error { background: #d23b3b; box-shadow: 0 0 0 2px rgba(210,59,59,.2); }
+.switch { display: inline-flex; gap: 8px; align-items: center; background: none; border: 0; font-size: 13px; color: var(--ink-2); }
+.switch i { width: 30px; height: 18px; border-radius: 9px; background: #b9bdc3; position: relative; transition: background .2s; }
+.switch i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .2s; }
+.switch[aria-checked="true"] i { background: var(--ink); } .switch[aria-checked="true"] i::after { transform: translateX(12px); }
+
+.top { display: grid; grid-template-columns: 340px 1fr; gap: 56px; padding: 40px 0 36px; align-items: center; }
+/* the lens: looking up into the fixture */
+.lens { width: 300px; height: 300px; border-radius: 50%; position: relative; justify-self: center;
+  background: radial-gradient(circle at 50% 45%, color-mix(in oklab, var(--light) 90%, white) 0%, var(--light) 28%, color-mix(in oklab, var(--light) 40%, #0b0c10) 70%, #0b0c10 100%);
+  box-shadow: inset 0 0 0 10px #c3c7cc, inset 0 0 0 11px #9da2a9, inset 0 6px 18px rgba(0,0,0,.5), 0 20px 40px -18px rgba(0,0,0,.45);
+  transition: background 1s ease; }
+.lens::after { content: ""; position: absolute; inset: 11px; border-radius: 50%; background: #0b0c10; opacity: calc(1 - var(--lvl)); transition: opacity 1s ease; }
+.lens svg { position: absolute; inset: 0; z-index: 1; }
+.read h1 { font-weight: 300; font-size: clamp(72px, 9vw, 120px); letter-spacing: -.04em; line-height: .9; }
+.read h1 small { font-size: 16px; letter-spacing: 0; color: var(--ink-2); font-weight: 400; margin-left: 8px; }
+.meta { display: flex; gap: 28px; margin-top: 18px; font-size: 14px; color: var(--ink-2); flex-wrap: wrap; }
+.meta b { display: block; font-size: 20px; color: var(--ink); font-weight: 500; }
+.fine { font-size: 12px; color: var(--ink-3); margin-top: 16px; }
+.seg { display: inline-flex; margin-top: 26px; border: 1px solid #b4b8be; border-radius: 10px; padding: 3px; background: #e8eaed; flex-wrap: wrap; }
+.seg button { border: 0; background: none; padding: 8px 14px; border-radius: 7px; font-size: 14px; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.15), 0 0 0 1px rgba(0,0,0,.04); }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; border-top: 1px solid var(--line); padding-top: 28px; }
+h2 { font-size: 13px; letter-spacing: .18em; text-transform: uppercase; font-weight: 500; color: var(--ink-2); margin-bottom: 18px; display: flex; justify-content: space-between; }
+h2 span { letter-spacing: 0; text-transform: none; color: var(--ink-3); font-weight: 400; }
+.ch { display: grid; grid-template-columns: 92px 1fr 40px; gap: 14px; align-items: center; padding: 8px 0; font-size: 14px; }
+.ch output { text-align: right; }
+.ch label i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 8px; vertical-align: 1px; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 24px; background: transparent; --p: 50%; --c: var(--ink); }
+input[type=range]::-webkit-slider-runnable-track { height: 3px; background: linear-gradient(90deg, var(--c) var(--p), #bfc3c8 var(--p)); border-radius: 2px; }
+input[type=range]::-moz-range-track { height: 3px; background: linear-gradient(90deg, var(--c) var(--p), #bfc3c8 var(--p)); border-radius: 2px; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -8.5px; border-radius: 50%; background: linear-gradient(180deg, #fff, #d4d7db); box-shadow: 0 1px 3px rgba(0,0,0,.35), inset 0 0 0 1px rgba(0,0,0,.08); }
+input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border: 0; border-radius: 50%; background: linear-gradient(180deg, #fff, #d4d7db); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.chart { width: 100%; height: 150px; display: block; cursor: ew-resize; touch-action: none; }
+.sched { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 14px; }
+.sched label { font-size: 12px; color: var(--ink-3); display: grid; gap: 5px; }
+.sched input { font: inherit; font-size: 15px; padding: 7px 6px; border: 1px solid #b4b8be; border-radius: 8px; background: #f3f4f6; color: var(--ink); width: 100%; }
+.tbtn { display: flex; gap: 8px; margin-top: 14px; }
+.tbtn button { border: 1px solid #b4b8be; background: #eef0f2; padding: 7px 14px; border-radius: 8px; font-size: 13px; }
+.tbtn button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.log { font-size: 12px; color: var(--ink-3); margin-top: 22px; border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 3px; }
+.log b { color: var(--ink); font-weight: 500; } .log .bad { color: #b52a2a; }
+.err { display: none; color: #b52a2a; font-size: 13px; margin-top: 10px; } .err.show { display: block; }
+.err button { background: none; border: 0; text-decoration: underline; padding: 0; color: inherit; }
+@media (max-width: 900px) { .top, .row { grid-template-columns: 1fr; gap: 32px; } .sched { grid-template-columns: repeat(2, 1fr); } .wrap { padding: 20px 16px; } .lens { width: 260px; height: 260px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Lumen<span>Reef 60 · living room tank</span></div>
+    <div class="status">
+      <span><i class="led" id="led"></i><span id="sync">Connecting…</span></span>
+      <button class="switch" id="online" role="switch" aria-checked="true"><i></i>Light reachable</button>
+    </div>
+  </header>
+
+  <section class="top">
+    <div class="lens" id="lens" role="slider" tabindex="0" aria-label="Master brightness, drag around the ring" aria-valuemin="0" aria-valuemax="100">
+      <svg viewBox="0 0 300 300" id="dial"></svg>
+    </div>
+    <div class="read">
+      <h1><span id="par">0</span><small>µmol/m²/s</small></h1>
+      <div class="meta">
+        <span>Phase<b id="phase">–</b></span>
+        <span>Time<b id="time">–</b></span>
+        <span>Master<b id="master">–</b></span>
+        <span>Peak today<b id="peak">–</b></span>
+      </div>
+      <p class="fine">PAR is an estimate for mid-depth in a 60 cm tank. Simulated device, no hardware yet. Drag the ring to set master brightness.</p>
+      <div class="seg" id="presets" aria-label="Presets"></div>
+    </div>
+  </section>
+
+  <section class="row">
+    <div>
+      <h2>Channels <span id="presetName"></span></h2>
+      <div id="channels"></div>
+    </div>
+    <div>
+      <h2>24 h schedule <span id="mode"></span></h2>
+      <svg class="chart" id="chart" viewBox="0 0 520 150" preserveAspectRatio="none" role="slider" tabindex="0" aria-label="Preview time of day" aria-valuemin="0" aria-valuemax="24"></svg>
+      <div class="tbtn"><button id="live">Now</button><button id="play">Play a day</button></div>
+      <div class="sched" id="sched"></div>
+      <div class="log" id="log"></div>
+      <p class="err" id="err">The light didn't answer. Your change is kept here. <button id="retry">Send again</button></p>
+    </div>
+  </section>
+</div>
+<script src="lumen-core.js"></script>
+<script>
+const L = Lumen, $ = (id) => document.getElementById(id), NS = 'http://www.w3.org/2000/svg';
+const toH = (s) => { const [h, m] = s.split(':').map(Number); return h + m / 60; };
+$('presets').innerHTML = L.PRESETS.map(p => `<button data-p="${p.id}" title="${p.note}">${p.name}</button>`).join('');
+$('presets').onclick = (e) => e.target.dataset.p && L.applyPreset(e.target.dataset.p);
+$('channels').innerHTML = L.CHANNELS.map(c => `<div class="ch"><label for="c-${c.id}"><i style="background:${c.color}"></i>${c.name}</label><input id="c-${c.id}" type="range" min="0" max="100" style="--c:${c.color === '#f3efe6' ? '#9a958a' : c.color}"><output id="o-${c.id}"></output></div>`).join('');
+L.CHANNELS.forEach(c => $('c-' + c.id).oninput = (e) => L.setChannel(c.id, +e.target.value));
+$('sched').innerHTML = [['sunriseStart','Dawn'],['sunriseEnd','Full'],['sunsetStart','Dusk'],['sunsetEnd','Off']].map(([k, n]) => `<label>${n}<input type="time" step="900" data-k="${k}"></label>`).join('') + `<label>Moon %<input type="number" min="0" max="20" data-k="moon"></label>`;
+$('sched').onchange = (e) => { const k = e.target.dataset.k; if (k) L.setSchedule(k, k === 'moon' ? L.clamp(+e.target.value, 0, 20) : toH(e.target.value)); };
+$('live').onclick = () => L.live(); $('play').onclick = () => L.play(); $('retry').onclick = () => L.retry();
+$('online').onclick = () => { const on = !L.device.online; L.setOnline(on); $('online').setAttribute('aria-checked', on); };
+
+// Dial: 270° ring of 101 ticks around the lens; lit ticks = master.
+const A0 = -225, SPAN = 270, R = 138;
+$('dial').innerHTML = Array.from({ length: 51 }, (_, i) => { const a = (A0 + SPAN * i / 50) * Math.PI / 180, r1 = i % 5 ? 132 : 128;
+  return `<line data-i="${i * 2}" x1="${150 + Math.cos(a) * r1}" y1="${150 + Math.sin(a) * r1}" x2="${150 + Math.cos(a) * 144}" y2="${150 + Math.sin(a) * 144}" stroke-width="${i % 5 ? 1.5 : 2.5}" stroke-linecap="round"/>`; }).join('') +
+  `<circle id="knob" r="7" fill="#fff" stroke="#1b1d21" stroke-width="2"/>`;
+const lens = $('lens');
+const dialSet = (e) => { const r = lens.getBoundingClientRect(); let a = Math.atan2(e.clientY - r.top - r.height / 2, e.clientX - r.left - r.width / 2) * 180 / Math.PI;
+  a = ((a - A0) % 360 + 360) % 360; if (a > SPAN) a = a > SPAN + 45 ? 0 : SPAN; L.setMaster(a / SPAN * 100); };
+lens.onpointerdown = (e) => { lens.setPointerCapture(e.pointerId); dialSet(e); };
+lens.onpointermove = (e) => e.buttons && dialSet(e);
+lens.onkeydown = (e) => { const d = { ArrowUp: 5, ArrowRight: 5, ArrowDown: -5, ArrowLeft: -5 }[e.key]; if (d) { L.setMaster(L.state.master + d); e.preventDefault(); } };
+
+const chart = $('chart'), W = 520, H = 150;
+function drawChart() {
+  let d = ''; for (let i = 0; i <= 96; i++) { const t = i / 4, v = L.view(t); d += `${i ? 'L' : 'M'}${(t / 24 * W).toFixed(1)},${(H - 18 - v.level * (H - 30)).toFixed(1)}`; }
+  const v = L.view(), x = v.t / 24 * W;
+  chart.innerHTML = [0, 6, 12, 18, 24].map(h => `<text x="${h / 24 * W}" y="${H - 2}" font-size="10" fill="#575c64" text-anchor="${h ? h === 24 ? 'end' : 'middle' : 'start'}">${String(h).padStart(2, '0')}</text>`).join('') +
+    `<line x1="0" x2="${W}" y1="${H - 18}" y2="${H - 18}" stroke="#bfc3c8"/>` +
+    `<path d="${d}L${W},${H - 18}L0,${H - 18}Z" fill="${v.color}" fill-opacity=".18"/><path d="${d}" fill="none" stroke="#1b1d21" stroke-width="1.5" vector-effect="non-scaling-stroke"/>` +
+    `<line x1="${x}" x2="${x}" y1="0" y2="${H - 18}" stroke="#1b1d21" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>`;
+  chart.setAttribute('aria-valuenow', v.t.toFixed(2)); chart.setAttribute('aria-valuetext', v.time);
+}
+const scrub = (e) => { const r = chart.getBoundingClientRect(); L.setTime(L.clamp((e.clientX - r.left) / r.width, 0, .9999) * 24); };
+chart.onpointerdown = (e) => { chart.setPointerCapture(e.pointerId); scrub(e); };
+chart.onpointermove = (e) => e.buttons && scrub(e);
+chart.onkeydown = (e) => { const d = { ArrowLeft: -.25, ArrowRight: .25 }[e.key]; if (d) { L.setTime(L.clock.t + d); e.preventDefault(); } };
+
+L.on((why) => {
+  const v = L.view(), s = L.state, root = document.documentElement.style;
+  root.setProperty('--light', v.color); root.setProperty('--lvl', Math.min(1, .15 + v.level * 1.6).toFixed(3));
+  $('par').textContent = Math.round(v.par); $('phase').textContent = v.phase; $('time').textContent = v.time;
+  $('mode').textContent = { live: 'live', scrub: 'previewing', play: 'playing' }[L.clock.mode];
+  $('live').setAttribute('aria-pressed', L.clock.mode === 'live'); $('play').setAttribute('aria-pressed', L.clock.mode === 'play');
+  drawChart();
+  if (why === 'time') return;
+  document.querySelectorAll('#dial line').forEach(l => l.setAttribute('stroke', +l.dataset.i <= s.master ? '#1b1d21' : '#a9aeb5'));
+  const a = (A0 + SPAN * s.master / 100) * Math.PI / 180; $('knob').setAttribute('cx', 150 + Math.cos(a) * R); $('knob').setAttribute('cy', 150 + Math.sin(a) * R);
+  lens.setAttribute('aria-valuenow', s.master);
+  $('master').textContent = s.master + '%'; $('peak').textContent = Math.round(L.peakPar()) + ' PAR';
+  L.CHANNELS.forEach(c => { const el = $('c-' + c.id); if (document.activeElement !== el) el.value = s.mix[c.id]; el.style.setProperty('--p', s.mix[c.id] + '%'); $('o-' + c.id).textContent = s.mix[c.id] + '%'; });
+  document.querySelectorAll('[data-p]').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === s.preset));
+  $('presetName').textContent = (L.PRESETS.find(p => p.id === s.preset) || { name: 'Custom mix' }).name;
+  document.querySelectorAll('#sched input').forEach(i => { if (document.activeElement !== i) i.value = i.dataset.k === 'moon' ? s.schedule.moon : L.fmt(s.schedule[i.dataset.k]); });
+  $('led').className = 'led ' + L.sync; $('sync').textContent = { connecting: 'Connecting…', saving: 'Saving…', saved: 'Synced with light', error: 'Not synced' }[L.sync];
+  $('err').classList.toggle('show', L.sync === 'error');
+  $('log').innerHTML = '<div>Mock API · 192.168.1.60</div>' + L.device.log.slice(0, 5).map(e => `<div class="${e.status >= 400 ? 'bad' : ''}"><b>${e.method}</b> ${e.path} → ${e.status} (${e.ms} ms)</div>`).join('');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen · Spectrometer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;500;600&family=Chivo+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --light: rgb(80,90,255); --ink: #121417; --ink-2: #50565f; --line: #dde0e4; --bg: #f7f8f9; }
+* { box-sizing: border-box; margin: 0; }
+body { font-family: Chivo, system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+::selection { background: var(--ink); color: #fff; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.num { font-family: "Chivo Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 24px 32px 44px; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+h1 { font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+h1 span { font-weight: 400; color: var(--ink-2); margin-left: 10px; }
+.st { display: flex; gap: 12px; align-items: center; font-size: 13px; color: var(--ink-2); }
+.pill { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 12px; font-size: 13px; }
+.pill[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.sdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #19a463; margin-right: 6px; }
+.sdot.saving { background: #c7900d; } .sdot.error { background: #d13a3a; }
+
+.instrument { margin-top: 20px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px 8px; }
+.readouts { display: grid; grid-template-columns: repeat(5, auto) 1fr; gap: 36px; align-items: end; }
+.ro small { display: block; font-size: 12px; color: var(--ink-2); margin-bottom: 4px; }
+.ro b { font-size: 30px; font-weight: 500; letter-spacing: -.02em; }
+.ro b.hero { font-size: 56px; line-height: .95; }
+.ro b i { font-style: normal; font-size: 13px; color: var(--ink-2); margin-left: 4px; font-family: Chivo; }
+.swatch { justify-self: end; width: 64px; height: 64px; border-radius: 50%; background: var(--light); box-shadow: inset 0 0 0 1px rgba(0,0,0,.08), 0 6px 16px -6px rgba(0,0,0,.35); transition: background .8s; }
+.plotwrap { position: relative; margin-top: 18px; }
+#plot { width: 100%; height: 300px; display: block; }
+/* channel faders stand under their own wavelength on the axis */
+.faders { position: relative; height: 170px; margin: 0 0 6px; }
+.fd { position: absolute; top: 0; transform: translateX(-50%); display: grid; justify-items: center; gap: 4px; width: 58px; }
+.fd label { font-size: 11px; color: var(--ink-2); text-align: center; line-height: 1.15; }
+.fd output { font-size: 13px; }
+input[type=range].v { writing-mode: vertical-lr; direction: rtl; -webkit-appearance: none; appearance: none; width: 22px; height: 104px; background: transparent; --p: 50%; --c: var(--ink); cursor: pointer; }
+.v::-webkit-slider-runnable-track { width: 4px; border-radius: 2px; background: linear-gradient(0deg, var(--c) var(--p), #e3e5e8 var(--p)); }
+.v::-moz-range-track { width: 4px; border-radius: 2px; background: linear-gradient(0deg, var(--c) var(--p), #e3e5e8 var(--p)); }
+.v::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 10px; margin-left: -7px; border-radius: 3px; background: #fff; border: 1.5px solid var(--ink); }
+.v::-moz-range-thumb { width: 16px; height: 8px; border-radius: 3px; background: #fff; border: 1.5px solid var(--ink); }
+
+.lower { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; margin-top: 20px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+h2 { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: baseline; }
+h2 span { font-weight: 400; font-size: 12px; color: var(--ink-2); }
+#day { width: 100%; height: 120px; display: block; cursor: ew-resize; touch-action: none; }
+.trow { display: flex; gap: 8px; margin: 10px 0 14px; flex-wrap: wrap; align-items: center; }
+.sched { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.sched label { font-size: 11px; color: var(--ink-2); display: grid; gap: 4px; }
+.sched input { font: 500 14px "Chivo Mono", monospace; border: 1px solid var(--line); border-radius: 8px; padding: 7px 6px; background: var(--bg); color: var(--ink); width: 100%; }
+.presets { display: grid; gap: 6px; }
+.presets button { display: grid; grid-template-columns: 1fr auto; text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 10px 12px; gap: 2px 10px; }
+.presets button small { grid-column: 1; font-size: 12px; color: var(--ink-2); }
+.presets button span { grid-row: 1 / 3; grid-column: 2; align-self: center; font-size: 12px; color: var(--ink-2); }
+.presets button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.mrow { display: grid; grid-template-columns: 60px 1fr 44px; gap: 10px; align-items: center; margin-top: 14px; font-size: 13px; }
+input[type=range].h { -webkit-appearance: none; appearance: none; width: 100%; height: 20px; background: transparent; --p: 50%; }
+.h::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--ink) var(--p), #e3e5e8 var(--p)); }
+.h::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--ink) var(--p), #e3e5e8 var(--p)); }
+.h::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 18px; margin-top: -7px; border-radius: 3px; background: #fff; border: 1.5px solid var(--ink); }
+.h::-moz-range-thumb { width: 8px; height: 16px; border-radius: 3px; background: #fff; border: 1.5px solid var(--ink); }
+.log { font-family: "Chivo Mono", monospace; font-size: 11.5px; color: var(--ink-2); display: grid; gap: 2px; margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
+.log .bad { color: #b42d2d; }
+.err { display: none; color: #b42d2d; font-size: 13px; margin-top: 10px; } .err.show { display: block; }
+.err button { background: none; border: 0; padding: 0; text-decoration: underline; }
+.fine { font-size: 12px; color: var(--ink-2); padding: 6px 0 12px; }
+@media (max-width: 900px) {
+  .wrap { padding: 18px 16px; } .readouts { grid-template-columns: repeat(2, 1fr); gap: 16px; } .swatch { justify-self: start; }
+  .lower { grid-template-columns: 1fr; } .sched { grid-template-columns: repeat(2, 1fr); }
+  .instrument { overflow-x: auto; } .plotwrap { min-width: 760px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Lumen Reef 60<span>Spectral control</span></h1>
+    <div class="st"><span><i class="sdot" id="sdot"></i><span id="sync">Connecting</span></span><button class="pill" id="online" aria-pressed="false">Simulate offline</button></div>
+  </header>
+
+  <section class="instrument">
+    <div class="readouts" aria-live="polite">
+      <div class="ro"><small>PAR, estimated</small><b class="num hero" id="par">0</b></div>
+      <div class="ro"><small>Unit</small><b style="font-size:15px">µmol/m²/s</b></div>
+      <div class="ro"><small>Peak λ</small><b class="num" id="peakNm">0<i>nm</i></b></div>
+      <div class="ro"><small>Blue : White</small><b class="num" id="ratio">–</b></div>
+      <div class="ro"><small><span id="phase">Midday</span></small><b class="num" id="time">12:00</b></div>
+      <div class="swatch" id="swatch" title="Color of the light right now"></div>
+    </div>
+    <div class="plotwrap">
+      <svg id="plot" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-label="Emission spectrum of the light right now"></svg>
+      <div class="faders" id="faders"></div>
+      <p class="fine">Filled curve: what the light emits at the shown time. Dashed line: the midday mix you set. Each fader sits under its own wavelength. Spectrum and PAR are simulated.</p>
+    </div>
+  </section>
+
+  <div class="lower">
+    <section class="card">
+      <h2>Photoperiod <span id="mode">live</span></h2>
+      <svg id="day" viewBox="0 0 600 120" preserveAspectRatio="none" role="slider" tabindex="0" aria-label="Preview time of day" aria-valuemin="0" aria-valuemax="24"></svg>
+      <div class="trow"><button class="pill" id="live">Now</button><button class="pill" id="play">Play 24 h in 40 s</button></div>
+      <div class="sched" id="sched"></div>
+    </section>
+    <section class="card">
+      <h2>Presets <span id="peakpar"></span></h2>
+      <div class="presets" id="presets"></div>
+      <div class="mrow"><label for="m">Master</label><input class="h" id="m" type="range" min="0" max="100"><output class="num" id="mo"></output></div>
+      <p class="err" id="err">The light did not respond. Settings stay here until it does. <button id="retry">Retry</button></p>
+      <div class="log" id="log"></div>
+    </section>
+  </div>
+</div>
+<script src="lumen-core.js"></script>
+<script>
+const L = Lumen, $ = (id) => document.getElementById(id), NM0 = 380, NM1 = 720, PW = 1000, PH = 300, YMAX = 1.5;
+const X = (nm) => (nm - NM0) / (NM1 - NM0) * PW, Y = (v) => PH - 26 - Math.min(v / YMAX, 1) * (PH - 40);
+const toH = (s) => { const [h, m] = s.split(':').map(Number); return h + m / 60; };
+
+$('faders').innerHTML = L.CHANNELS.map(c => `<div class="fd" style="left:${(X(c.nm) / PW * 100).toFixed(2)}%"><output class="num" id="o-${c.id}"></output>
+  <input class="v" id="c-${c.id}" type="range" min="0" max="100" style="--c:${c.id === 'white' ? '#9a958a' : c.color}"><label for="c-${c.id}">${c.name}<br><span class="num">${c.id === 'white' ? 'broad' : c.nm + ' nm'}</span></label></div>`).join('');
+L.CHANNELS.forEach(c => $('c-' + c.id).oninput = (e) => L.setChannel(c.id, +e.target.value));
+$('m').oninput = (e) => L.setMaster(+e.target.value);
+$('presets').innerHTML = L.PRESETS.map(p => `<button data-p="${p.id}"><b>${p.name}</b><small>${p.note}</small><span class="num" id="pp-${p.id}"></span></button>`).join('');
+$('presets').onclick = (e) => { const b = e.target.closest('[data-p]'); b && L.applyPreset(b.dataset.p); };
+$('sched').innerHTML = [['sunriseStart','Ramp up'],['sunriseEnd','Full'],['sunsetStart','Ramp down'],['sunsetEnd','Off']].map(([k, n]) => `<label>${n}<input type="time" step="900" data-k="${k}"></label>`).join('') + `<label>Moon %<input type="number" min="0" max="20" data-k="moon"></label>`;
+$('sched').onchange = (e) => { const k = e.target.dataset.k; if (k) L.setSchedule(k, k === 'moon' ? L.clamp(+e.target.value, 0, 20) : toH(e.target.value)); };
+$('live').onclick = () => L.live(); $('play').onclick = () => L.play(); $('retry').onclick = () => L.retry();
+$('online').onclick = () => { L.setOnline(!L.device.online); $('online').setAttribute('aria-pressed', !L.device.online); };
+
+const stops = Array.from({ length: 18 }, (_, i) => { const nm = NM0 + i * 20; return `<stop offset="${(i / 17 * 100).toFixed(1)}%" stop-color="${L.nmColor(nm)}"/>`; }).join('');
+function drawPlot(v) {
+  const cur = L.spectrum(v.out, NM0, NM1, 3);
+  const mid = L.spectrum(L.view((L.state.schedule.sunriseEnd + L.state.schedule.sunsetStart) / 2).out, NM0, NM1, 3);
+  const path = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.nm).toFixed(1)},${Y(p.v).toFixed(1)}`).join('');
+  let s = `<defs><linearGradient id="g" x1="0" x2="1">${stops}</linearGradient></defs>`;
+  for (let nm = 400; nm <= 700; nm += 50) s += `<line x1="${X(nm)}" x2="${X(nm)}" y1="10" y2="${PH - 26}" stroke="#eceef0"/><text x="${X(nm)}" y="${PH - 8}" font-size="11" text-anchor="middle" fill="#50565f" font-family="Chivo Mono">${nm}</text>`;
+  s += `<rect x="0" y="${PH - 26}" width="${PW}" height="5" fill="url(#g)"/>`;
+  s += `<path d="${path(cur)}L${PW},${PH - 26}L0,${PH - 26}Z" fill="url(#g)" fill-opacity=".85"/>`;
+  s += `<path d="${path(cur)}" fill="none" stroke="#121417" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`;
+  s += `<path d="${path(mid)}" fill="none" stroke="#121417" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" opacity=".55"/>`;
+  $('plot').innerHTML = s;
+  const peak = cur.reduce((a, b) => b.v > a.v ? b : a);
+  $('peakNm').innerHTML = (peak.v > 0.005 ? peak.nm : '–') + '<i>nm</i>';
+  const blue = v.out.royal + v.out.blue + v.out.violet, white = v.out.white;
+  $('ratio').textContent = white > 0.5 ? (blue / white).toFixed(1) + ' : 1' : 'blue only';
+}
+function drawDay(v) {
+  const W = 600, H = 120; let d = '';
+  for (let i = 0; i <= 96; i++) { const t = i / 4; d += `${i ? 'L' : 'M'}${t / 24 * W},${H - 16 - L.view(t).level * (H - 26)}`; }
+  const x = v.t / 24 * W;
+  $('day').innerHTML = [0, 6, 12, 18, 24].map(h => `<text x="${h / 24 * W}" y="${H - 2}" font-size="10" fill="#50565f" font-family="Chivo Mono" text-anchor="${h ? h === 24 ? 'end' : 'middle' : 'start'}">${String(h).padStart(2, '0')}</text>`).join('') +
+    `<path d="${d}L${W},${H - 16}L0,${H - 16}Z" fill="${v.color}" fill-opacity=".22"/><path d="${d}" fill="none" stroke="#121417" stroke-width="1.5" vector-effect="non-scaling-stroke"/>` +
+    `<line x1="${x}" x2="${x}" y1="0" y2="${H - 16}" stroke="#121417" vector-effect="non-scaling-stroke"/>`;
+  $('day').setAttribute('aria-valuenow', v.t.toFixed(2)); $('day').setAttribute('aria-valuetext', v.time);
+}
+const day = $('day'), scrub = (e) => { const r = day.getBoundingClientRect(); L.setTime(L.clamp((e.clientX - r.left) / r.width, 0, .9999) * 24); };
+day.onpointerdown = (e) => { day.setPointerCapture(e.pointerId); scrub(e); };
+day.onpointermove = (e) => e.buttons && scrub(e);
+day.onkeydown = (e) => { const d = { ArrowLeft: -.25, ArrowRight: .25 }[e.key]; if (d) { L.setTime(L.clock.t + d); e.preventDefault(); } };
+
+L.on((why) => {
+  const v = L.view(), s = L.state;
+  document.documentElement.style.setProperty('--light', `rgb(${v.rgb.map(c => Math.round(c * Math.min(1, .2 + v.level * 1.6)))})`);
+  $('par').textContent = Math.round(v.par); $('phase').textContent = v.phase; $('time').textContent = v.time;
+  $('mode').textContent = { live: 'live', scrub: 'previewing', play: 'playing' }[L.clock.mode];
+  $('live').setAttribute('aria-pressed', L.clock.mode === 'live'); $('play').setAttribute('aria-pressed', L.clock.mode === 'play');
+  drawPlot(v); drawDay(v);
+  if (why === 'time') return;
+  L.CHANNELS.forEach(c => { const el = $('c-' + c.id); if (document.activeElement !== el) el.value = s.mix[c.id]; el.style.setProperty('--p', s.mix[c.id] + '%'); $('o-' + c.id).textContent = s.mix[c.id]; });
+  $('m').value = s.master; $('m').style.setProperty('--p', s.master + '%'); $('mo').textContent = s.master + '%';
+  document.querySelectorAll('[data-p]').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === s.preset));
+  L.PRESETS.forEach(p => { const sum = L.CHANNELS.reduce((a, c) => a + p.mix[c.id] / 100 * c.par, 0) * p.master / 100; $('pp-' + p.id).textContent = Math.round(sum) + ' PAR'; });
+  $('peakpar').textContent = 'midday ' + Math.round(L.peakPar()) + ' PAR';
+  document.querySelectorAll('#sched input').forEach(i => { if (document.activeElement !== i) i.value = i.dataset.k === 'moon' ? s.schedule.moon : L.fmt(s.schedule[i.dataset.k]); });
+  $('sdot').className = 'sdot ' + L.sync; $('sync').textContent = { connecting: 'Connecting', saving: 'Saving', saved: 'Synced', error: 'Not synced' }[L.sync];
+  $('err').classList.toggle('show', L.sync === 'error');
+  $('log').innerHTML = L.device.log.slice(0, 5).map(e => `<div class="${e.status >= 400 ? 'bad' : ''}">${e.method.padEnd(4)} ${e.path} ${e.status} ${e.ms}ms</div>`).join('');
+});
+</script>
+</body>
+</html>

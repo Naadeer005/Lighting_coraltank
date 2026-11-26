@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen control · six styles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; }
+body { font-family: Onest, system-ui, sans-serif; background: #0b0c12; color: #eef0f8; padding: 48px 32px; }
+main { max-width: 880px; margin: 0 auto; }
+h1 { font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
+p.lead { color: #b9bdcc; margin-top: 10px; max-width: 60ch; line-height: 1.5; }
+ol { list-style: none; padding: 0; margin-top: 36px; border-top: 1px solid #2a2d3a; }
+li a { display: grid; grid-template-columns: 220px 1fr; gap: 24px; padding: 20px 4px; border-bottom: 1px solid #2a2d3a; color: inherit; text-decoration: none; transition: background .2s; }
+li a:hover { background: #151722; }
+li a:focus-visible { outline: 2px solid #eef0f8; outline-offset: 2px; }
+li b { font-size: 19px; font-weight: 500; }
+li span { color: #b9bdcc; line-height: 1.5; }
+@media (max-width: 640px) { body { padding: 28px 16px; } li a { grid-template-columns: 1fr; gap: 4px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lumen Reef 60 · control app, six styles</h1>
+  <p class="lead">Every version is fully working and talks to the same simulated light (mock API), so settings you change in one show up in the others after a reload. PAR values are estimates; no hardware exists yet.</p>
+  <ol>
+    <li><a href="v1-ambient.html"><b>1 · Ambient</b><span>The whole screen is lit by the light. A day ribbon paints 24 hours in the light's own colors; drag it to preview any time.</span></a></li>
+    <li><a href="v2-aluminium.html"><b>2 · Aluminium</b><span>Machined product feel. Look up into the fixture through a lens and turn its ring to set master brightness.</span></a></li>
+    <li><a href="v3-swiss.html"><b>3 · Swiss</b><span>Strict grid, huge numerals, a solid block of the current light color. Bar-chart sliders and 24 hour cells.</span></a></li>
+    <li><a href="v4-console.html"><b>4 · Console</b><span>Lighting desk: a fader per LED channel with live LED meters, an LCD PAR readout and scene buttons.</span></a></li>
+    <li><a href="v5-almanac.html"><b>5 · Almanac</b><span>A 24 h sun clock on sea-chart paper. Drag the sun around the dial; the ring shows the light's color and strength.</span></a></li>
+    <li><a href="v6-spectrometer.html"><b>6 · Spectrometer</b><span>Lab instrument. The emission spectrum is the hero, with each channel's fader standing under its own wavelength.</span></a></li>
+  </ol>
+</main>
+</body>
+</html>
