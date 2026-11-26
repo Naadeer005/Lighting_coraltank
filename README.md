@@ -11,13 +11,13 @@ Key features:
 - Changing time of day
 - App control
 
-## Control app (six styles)
+## Control app (seven styles)
 
 A working concept of the light's control app, built before the hardware exists. Every version talks to the same **mock device API** in [`app/lumen-core.js`](app/lumen-core.js), shaped like the light's future Wi-Fi JSON endpoints. PAR values are simulated estimates.
 
 Each version has: master brightness and PAR readout, 7 channel sliders (UV, Violet, Royal Blue, Blue, Green, White, Red), presets (Coral Pop, Daylight, Deep Reef, Photo, Acclimation), a 24 h schedule with sunrise/sunset ramps and moonlight, a time-of-day preview, and an offline simulation.
 
-Run it locally, then open http://127.0.0.1:5173/ to compare all six:
+Run it locally, then open http://127.0.0.1:5173/ to compare all seven:
 
 ```
 python -m http.server 5173 --directory app
@@ -48,3 +48,7 @@ A 24 h sun clock on sea-chart paper; drag the sun around the dial.
 ### 6 · Spectrometer
 The emission spectrum is the hero, with each fader under its own wavelength.
 <img src="render/app/v6-spectrometer.png" alt="Spectrometer, desktop" width="70%"> <img src="render/app/mobile/v6-spectrometer.png" alt="Spectrometer, phone" width="22%">
+
+### 7 · Ambient + Spectrum
+Version 1's lit screen with version 6's live spectrum beside the PAR number; each channel slider stands under its own wavelength.
+<img src="render/app/v7-ambient-spectrum.png" alt="Ambient + Spectrum, desktop" width="70%"> <img src="render/app/mobile/v7-ambient-spectrum.png" alt="Ambient + Spectrum, phone" width="22%">
